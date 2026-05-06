@@ -153,18 +153,24 @@ char* CreateUnattendXml(int arch, int flags)
 			if (flags & UNATTEND_DISABLE_BITLOCKER)
 				fprintf(fd, "        <DisableEncryptedDiskProvisioning>true</DisableEncryptedDiskProvisioning>\n");
 			// The following ensures that we display the disk selection screen if only the boot media is
-			// available (i.e. if the system does not see any target for installation). In that case the
-			// letter assignment below fails and the UI is displayed allowing the user to provide drivers.
-			// This also prevents the install media from being scratched, when it's the only disk.
+			// available (i.e. if the system does not see any target for installation) or (in most cases)
+			// if the user happens to have more than one disk connected besides the instal USB. In that
+			// case the label assignment below fails and the UI is displayed allowing the user to provide
+			// drivers or pick their target disk explicitly.
+			// This also prevents the install media from being scratched.
 			// With a special mention to Claude AI, that explicitly said this could not be accomplished...
+			// Note that this may result in the disk partition screen being produced on systems that have
+			// card readers, but we'd rather inconvenience a few people, to prevent potential data loss,
+			// than the opposite. Also note that you do *NOT* want to try to use drive letter mapping for
+			// the detection here, as if your drive isn't of type FIXED, the file copy steps bails out at
+			// 75%. See https://github.com/pbatard/rufus/issues/2960 for more details.
 			fprintf(fd, "        <Disk wcm:action=\"modify\">\n");
 			fprintf(fd, "          <DiskID>1</DiskID> \n");
 			fprintf(fd, "          <ModifyPartitions>\n");
 			fprintf(fd, "            <ModifyPartition wcm:action=\"modify\">\n");
 			fprintf(fd, "              <Order>1</Order>\n");
-			fprintf(fd, "              <PartitionID>1</PartitionID>\n");
-			// You REALLY don't want to use 'U' for the drive letter below. Don't ask me how I know!!!
-			fprintf(fd, "              <Letter>D</Letter>\n");
+			fprintf(fd, "              <PartitionID>2</PartitionID>\n");
+			fprintf(fd, "              <Label>RUFUS_BOOT</Label>\n");
 			fprintf(fd, "            </ModifyPartition>\n");
 			fprintf(fd, "          </ModifyPartitions>\n");
 			fprintf(fd, "        </Disk>\n");

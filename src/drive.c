@@ -2478,10 +2478,8 @@ BOOL CreatePartition(HANDLE hDrive, int partition_style, int file_system, BOOL m
 				DriveLayoutEx.PartitionEntry[i].Gpt.PartitionType = PARTITION_MICROSOFT_DATA;
 				// Prevent a drive letter from being assigned to the UEFI:NTFS partition
 				DriveLayoutEx.PartitionEntry[i].Gpt.Attributes = GPT_BASIC_DATA_ATTRIBUTE_NO_DRIVE_LETTER;
-#if !defined(_DEBUG)
-				// Also make the partition read-only for release versions
-				DriveLayoutEx.PartitionEntry[i].Gpt.Attributes += GPT_BASIC_DATA_ATTRIBUTE_READ_ONLY;
-#endif
+				// NB: We no longer make the partition read-only as we need to be able to edit
+				// its label for WUE's silent install no-disk/extra-disk detection.
 			} else if (wcscmp(SelectedDrive.Partition[i].Name, L"EFI System Partition") == 0)
 				DriveLayoutEx.PartitionEntry[i].Gpt.PartitionType = PARTITION_GENERIC_ESP;
 			else if (wcscmp(SelectedDrive.Partition[i].Name, L"Linux Persistence") == 0)
